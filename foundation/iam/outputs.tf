@@ -23,12 +23,9 @@ output "service_account_secret_keys" {
   sensitive = true
 }
 
-output "csv_files_created" {
-  description = "Paths to generated CSV files"
-  value = {
-    service_accounts = abspath(local_file.service_account_keys.filename)
-    console_users    = abspath(local_file.console_users_info.filename)
-  }
+output "ssm_secret_parameters" {
+  description = "Names of the SSM parameters where secrets are stored"
+  value       = module.ssm_iam_secrets.parameter_names
 }
 
 output "cost_explorer_role_arn" {
