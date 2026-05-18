@@ -54,13 +54,13 @@ export AWS_DEFAULT_REGION=${aws_region}
 # source ~/.bashrc
 # hermes setup 
 # mkdir -p ~/.hermes && touch ~/.hermes/.env
-# sed -i '/^API_SERVER_ENABLED=/d; /^API_SERVER_HOST=/d ; /^HERMES_API_URL=/d ; /^HERMES_DASHBOARD_URL=/d ; /^HERMES_PASSWORD=/d ; /^AWS_REGION=/d' ~/.hermes/.env
-# printf "API_SERVER_ENABLED=true\nAPI_SERVER_HOST=127.0.0.1\nHERMES_API_URL=http://127.0.0.1:8642\nHERMES_DASHBOARD_URL=http://127.0.0.1:9119\nHERMES_PASSWORD=${hermes_ui_pass}\nAWS_REGION=${aws_region}\n" >> ~/.hermes/.env
+# sed -i '/^HERMES_PASSWORD=/d ; /^AWS_REGION=/d' ~/.hermes/.env
+# printf "HERMES_PASSWORD=${hermes_ui_pass}\nAWS_REGION=${aws_region}\n" >> ~/.hermes/.env
 # hermes gateway run
 # hermes dashboard &
 # hermes doctor --fix
-# pnpm approve-builds
-# pnpm install
+# cd ~/hermes-workspace && pnpm approve-builds
+# cd ~/hermes-workspace && pnpm install
 # cd ~/hermes-workspace && pnpm start:all &
 
 

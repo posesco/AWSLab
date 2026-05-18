@@ -41,3 +41,11 @@ data "aws_ami" "os" {
     values = ["hvm"]
   }
 }
+
+data "aws_ssm_parameter" "cloudflare_tunnel_token" {
+  name = "/hermes/${local.env}/cloudflare_token"
+}
+
+data "aws_ssm_parameter" "hermes_ui_pass" {
+  name = "/hermes/${local.env}/ui_password"
+}

@@ -62,25 +62,4 @@ variable "lab_volume_size" {
     condition     = alltrue([for value in values(var.lab_volume_size) : value > 10])
     error_message = "All lab_volume_size values must be greater than 10 GB."
   }
-}
-
-variable "cloudflare_tunnel_token" {
-  type        = map(string)
-  description = "Cloudflare Tunnel token for cloudflared service per environment"
-  sensitive   = true
-  default = {
-    dev     = "token_dev_value"
-    staging = "token_staging_value"
-    prod    = "token_prod_value"
   }
-  validation {
-    condition     = alltrue([for value in values(var.cloudflare_tunnel_token) : value != ""])
-    error_message = "All cloudflare_tunnel_token values must be non-empty strings."
-  }
-}
-
-variable "hermes_ui_pass" {
-  type        = string
-  description = "password-protect the web UI itself"
-  sensitive   = true
-}

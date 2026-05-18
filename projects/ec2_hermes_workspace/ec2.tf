@@ -5,8 +5,8 @@ resource "aws_instance" "lab_instance" {
   key_name                    = var.key_name[local.env]
   associate_public_ip_address = true
   user_data = templatefile("${path.module}/user_data.sh", {
-    cloudflare_tunnel_token = var.cloudflare_tunnel_token[local.env]
-    hermes_ui_pass          = var.hermes_ui_pass
+    cloudflare_tunnel_token = data.aws_ssm_parameter.cloudflare_tunnel_token.value
+    hermes_ui_pass          = data.aws_ssm_parameter.hermes_ui_pass.value
     aws_region              = var.aws_region
   })
   subnet_id            = data.terraform_remote_state.networking.outputs.public_subnet_ids[0]
