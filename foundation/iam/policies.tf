@@ -112,6 +112,38 @@ resource "aws_iam_role_policy" "github_actions_iam_limited" {
   })
 }
 
+resource "aws_iam_role_policy" "ec2_bedrock_access" {
+  name = "ec2-bedrock-access"
+  role = aws_iam_role.ec2_projects.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "BedrockInvoke"
+        Effect = "Allow"
+        Action = [
+          "bedrock:InvokeModel",
+          "bedrock:InvokeModelWithResponseStream"
+        ]
+        Resource = [
+          "arn:aws:bedrock:${var.aws_region}::foundation-model/anthropic.claude-*",
+          "arn:aws:bedrock:${var.aws_region}::foundation-model/minimax.*"
+        ]
+      },
+      {
+        Sid    = "BedrockDiscovery"
+        Effect = "Allow"
+        Action = [
+          "bedrock:ListFoundationModels",
+          "bedrock:GetFoundationModel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "github_actions_tfstate" {
   name = "github-actions-tfstate-access"
   role = aws_iam_role.github_actions.id

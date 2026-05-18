@@ -29,8 +29,13 @@ curl -fsSL https://pkg.cloudflare.com/cloudflare-public-v2.gpg | \
 echo 'deb [signed-by=/usr/share/keyrings/cloudflare-public-v2.gpg] https://pkg.cloudflare.com/cloudflared any main' | \
   tee /etc/apt/sources.list.d/cloudflared.list
 
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+
 apt-get update -y
-apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin cloudflared
+apt-get install -y sqlite3 docker-ce docker-ce-cli containerd.io docker-compose-plugin cloudflared nodejs
+
+corepack enable
+corepack prepare pnpm@latest --activate
 
 usermod -aG docker ubuntu
 
@@ -39,17 +44,32 @@ systemctl start docker
 
 cloudflared service install ${cloudflare_tunnel_token}
 
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.4/install.sh | bash
+# Bedrock Configuration
+# Note: Ensure model access is enabled in the AWS Console for ${aws_region}
+# Model usage enabled via IAM role for Claude (Sonnet) and Minimax.
+export AWS_DEFAULT_REGION=${aws_region}
 
-\. "$HOME/.nvm/nvm.sh"
+# Install Hermes Workspace
+# curl -fsSL https://raw.githubusercontent.com/outsourc-e/hermes-workspace/main/install.sh | bash
+# source ~/.bashrc
+# hermes setup 
+# mkdir -p ~/.hermes && touch ~/.hermes/.env
+# sed -i '/^API_SERVER_ENABLED=/d; /^API_SERVER_HOST=/d ; /^HERMES_API_URL=/d ; /^HERMES_DASHBOARD_URL=/d ; /^HERMES_PASSWORD=/d ; /^AWS_REGION=/d' ~/.hermes/.env
+# printf "API_SERVER_ENABLED=true\nAPI_SERVER_HOST=127.0.0.1\nHERMES_API_URL=http://127.0.0.1:8642\nHERMES_DASHBOARD_URL=http://127.0.0.1:9119\nHERMES_PASSWORD=${hermes_ui_pass}\nAWS_REGION=${aws_region}\n" >> ~/.hermes/.env
+# hermes gateway run
+# hermes dashboard &
+# hermes doctor --fix
+# pnpm approve-builds
+# pnpm install
+# cd ~/hermes-workspace && pnpm start:all &
 
-nvm install 24
 
-corepack enable pnpm
+# Fix permissions for user
+# sudo chown -R $USER:$USER ~/.hermes ~/workspace
+# mkdir -p ~/.hermes
+# chmod -R 777 ~/.hermes
 
-
-mkdir -p /mnt/hermes_data
-
+# https://www.youtube.com/watch?v=fUem4KS572c
 
 echo "=== End user_data: $(date) ==="
 

@@ -78,3 +78,9 @@ variable "cloudflare_tunnel_token" {
     error_message = "All cloudflare_tunnel_token values must be non-empty strings."
   }
 }
+
+variable "hermes_ui_pass" {
+  type        = string
+  description = "password-protect the web UI itself"
+  sensitive   = true
+}

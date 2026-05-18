@@ -6,6 +6,8 @@ resource "aws_instance" "lab_instance" {
   associate_public_ip_address = true
   user_data = templatefile("${path.module}/user_data.sh", {
     cloudflare_tunnel_token = var.cloudflare_tunnel_token[local.env]
+    hermes_ui_pass          = var.hermes_ui_pass
+    aws_region              = var.aws_region
   })
   subnet_id            = data.terraform_remote_state.networking.outputs.public_subnet_ids[0]
   iam_instance_profile = data.terraform_remote_state.iam.outputs.ec2_projects_instance_profile_name
