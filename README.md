@@ -18,7 +18,7 @@ scripts/                # Operational utilities
 
 ## Prerequisites
 
-- Terraform >= 1.10.0
+- Terraform >= 1.15.0
 - AWS Provider ~> 5.0
 - AWS CLI configured with appropriate credentials
 

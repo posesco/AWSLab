@@ -62,4 +62,4 @@ variable "lab_volume_size" {
     condition     = alltrue([for value in values(var.lab_volume_size) : value > 10])
     error_message = "All lab_volume_size values must be greater than 10 GB."
   }
-  }
+}

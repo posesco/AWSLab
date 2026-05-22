@@ -121,4 +121,5 @@ to-do/
 service-account-keys.csv
 console-users.csv
 .agents/
+.antigravitycli/
 skills-lock.json
