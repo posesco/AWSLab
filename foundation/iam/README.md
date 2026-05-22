@@ -2,21 +2,21 @@
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.10.0 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.0 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.15.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 6.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.100.0 |
-| <a name="provider_local"></a> [local](#provider\_local) | 2.6.1 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.46.0 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_common_tags"></a> [common\_tags](#module\_common\_tags) | ../../modules/common-tags | n/a |
+| <a name="module_ssm_iam_secrets"></a> [ssm\_iam\_secrets](#module\_ssm\_iam\_secrets) | ../../modules/ssm | n/a |
 
 ## Resources
 
@@ -30,6 +30,7 @@
 | [aws_iam_role.cost_explorer_reader](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.ec2_projects](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
 | [aws_iam_role.github_actions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role) | resource |
+| [aws_iam_role_policy.ec2_bedrock_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.ec2_dynamodb_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.ec2_s3_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [aws_iam_role_policy.github_actions_iam_limited](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
@@ -40,8 +41,6 @@
 | [aws_iam_user.users](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user) | resource |
 | [aws_iam_user_group_membership.user_groups](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_group_membership) | resource |
 | [aws_iam_user_policy_attachment.console_change_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_user_policy_attachment) | resource |
-| [local_file.console_users_info](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
-| [local_file.service_account_keys](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [aws_iam_policy_document.cost_explorer_assume_role](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/iam_policy_document) | data source |
 
 ## Inputs
@@ -61,7 +60,6 @@
 | Name | Description |
 |------|-------------|
 | <a name="output_cost_explorer_role_arn"></a> [cost\_explorer\_role\_arn](#output\_cost\_explorer\_role\_arn) | ARN of Cost Explorer Reader role |
-| <a name="output_csv_files_created"></a> [csv\_files\_created](#output\_csv\_files\_created) | Paths to generated CSV files |
 | <a name="output_ec2_projects_instance_profile_arn"></a> [ec2\_projects\_instance\_profile\_arn](#output\_ec2\_projects\_instance\_profile\_arn) | ARN of EC2 projects instance profile |
 | <a name="output_ec2_projects_instance_profile_name"></a> [ec2\_projects\_instance\_profile\_name](#output\_ec2\_projects\_instance\_profile\_name) | Name of EC2 projects instance profile |
 | <a name="output_ec2_projects_role_arn"></a> [ec2\_projects\_role\_arn](#output\_ec2\_projects\_role\_arn) | ARN of EC2 projects role |
@@ -70,6 +68,7 @@
 | <a name="output_github_oidc_provider_arn"></a> [github\_oidc\_provider\_arn](#output\_github\_oidc\_provider\_arn) | ARN of GitHub OIDC identity provider |
 | <a name="output_service_account_access_keys"></a> [service\_account\_access\_keys](#output\_service\_account\_access\_keys) | Access key IDs for service accounts |
 | <a name="output_service_account_secret_keys"></a> [service\_account\_secret\_keys](#output\_service\_account\_secret\_keys) | Secret access keys for service accounts |
+| <a name="output_ssm_secret_parameters"></a> [ssm\_secret\_parameters](#output\_ssm\_secret\_parameters) | Names of the SSM parameters where secrets are stored |
 | <a name="output_user_arns"></a> [user\_arns](#output\_user\_arns) | Map of usernames to ARNs |
 
 ## Diagram
