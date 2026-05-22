@@ -101,4 +101,6 @@ All resources include standard tags: `ManagedBy`, `Owner`, `Environment`, `Proje
 
 ## License
 
-Internal use only.
+Copyright 2026 Jesús David Posada Escobar
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
