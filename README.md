@@ -9,17 +9,22 @@ foundation/             # Core infrastructure modules (deploy in order)
 ├── tfstate/            # S3 backend for Terraform state
 ├── networking/         # VPC, subnets, gateways, VPC endpoints
 ├── iam/                # Users, groups, roles, access keys
-└── billing/            # Budget alerts and cost monitoring
+├── billing/            # Budget alerts and cost monitoring
+└── secrets/            # AWS Secrets Manager resources
 modules/
-└── common-tags/        # Shared tagging module
-projects/               # Projects using shared infrastructure.
+├── common-tags/        # Shared tagging module
+└── ssm/                # SSM Parameter Store helper
+projects/               # Projects using shared infrastructure
+├── ec2_hermes_workspace/  # EC2 ARM64 workspace (Hermes)
+├── ec2_n8n/               # EC2 n8n automation instance
+└── rds_db/                # RDS database layer
 scripts/                # Operational utilities
 ```
 
 ## Prerequisites
 
 - Terraform >= 1.15.0
-- AWS Provider ~> 5.0
+- AWS Provider ~> 6.0
 - AWS CLI configured with appropriate credentials
 
 ## Deployment Order
@@ -61,8 +66,20 @@ RBAC groups with predefined permissions:
 | finance | Billing read-only |
 | cli-deployers | PowerUser + IAM read-only |
 
+Includes OIDC provider for GitHub Actions CI/CD and IAM access keys stored in SSM Parameter Store.
+
 ### billing
 AWS Budget alerts with configurable thresholds and email notifications.
+
+### secrets
+AWS Secrets Manager resources for centralized secret storage across environments.
+
+## Modules
+
+| Module | Description |
+|--------|-------------|
+| `modules/common-tags` | Generates standard tags applied to all resources |
+| `modules/ssm` | Helper to write secrets/config values to SSM Parameter Store |
 
 ## Scripts
 
