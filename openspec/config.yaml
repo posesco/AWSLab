@@ -1,0 +1,41 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Terraform IaC for AWS.
+  Architecture: foundation/modules/projects with shared common-tags and S3 remote state.
+  Deployment: trunk-based development with global and per-environment modules.
+  Testing: terraform fmt -check -recursive, terraform validate, terraform plan per module/workspace.
+
+strict_tdd: false
+
+testing:
+  runner: none
+  notes: Terraform validation only; no language-level test runner.
+  layers:
+    unit: false
+    integration: false
+    e2e: false
+  validation_commands:
+    - terraform fmt -check -recursive
+    - terraform validate
+    - terraform plan
+
+rules:
+  proposal:
+    - Include rollback notes for destructive infrastructure changes.
+  specs:
+    - Use Given/When/Then scenarios and RFC 2119 keywords.
+  design:
+    - Document workspace and state implications.
+  tasks:
+    - Group work by phase and keep tasks small.
+  apply:
+    - Follow existing Terraform module patterns.
+    - tdd: false
+    - test_command: terraform fmt -check -recursive && terraform validate && terraform plan
+  verify:
+    - test_command: terraform fmt -check -recursive && terraform validate && terraform plan
+    - build_command: ""
+    - coverage_threshold: 0
+  archive:
+    - Preserve archived change folders as an audit trail.
