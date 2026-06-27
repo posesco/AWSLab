@@ -1,60 +1,61 @@
-name: Test Git Hub Workflows 
-run-name: ${{ github.actor }} is testing out GitHub Actions workflows
+# TO-DO: This workflow is a test workflow to explore GitHub Actions and AWS OIDC integration. It is not intended for production use.
+# name: Test Git Hub Workflows 
+# run-name: ${{ github.actor }} is testing out GitHub Actions workflows
 
-on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to use'
-        required: true
-        default: 'dev'
-        type: choice
-        options:
-          - dev
-          - staging
-          - prod
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       environment:
+#         description: 'Environment to use'
+#         required: true
+#         default: 'dev'
+#         type: choice
+#         options:
+#           - dev
+#           - staging
+#           - prod
 
-      aws_region:
-        description: 'AWS Region to use'
-        required: true
-        default: 'eu-west-1'
-        type: choice
-        options:
-          - eu-west-1
-          - us-east-1
-          - us-west-2
+#       aws_region:
+#         description: 'AWS Region to use'
+#         required: true
+#         default: 'eu-west-1'
+#         type: choice
+#         options:
+#           - eu-west-1
+#           - us-east-1
+#           - us-west-2
 
-permissions:
-  id-token: write   
-  contents: read
+# permissions:
+#   id-token: write   
+#   contents: read
 
-jobs:
-  Explore_AWS:
-    runs-on: ubuntu-latest
-    environment: ${{ inputs.environment }}
+# jobs:
+#   Explore_AWS:
+#     runs-on: ubuntu-latest
+#     environment: ${{ inputs.environment }}
 
-    steps:
-      - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v5.1.1
-        with:
-          aws-region: ${{ inputs.aws_region }}
-          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-terraform
+#     steps:
+#       - name: Configure AWS Credentials (OIDC)
+#         uses: aws-actions/configure-aws-credentials@v5.1.1
+#         with:
+#           aws-region: ${{ inputs.aws_region }}
+#           role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-terraform
 
-      - name: List all S3 buckets
-        run: aws s3api list-buckets --output table 
+#       - name: List all S3 buckets
+#         run: aws s3api list-buckets --output table 
         
-  Explore_Repository:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-          tree -L 2 ${{ github.workspace }}
-      - name: Looking environment variables...
-        run: printenv
+#   Explore_Repository:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Check out repository code
+#         uses: actions/checkout@v6
+#         with:
+#           fetch-depth: 0
+#       - name: List files in the repository
+#         run: |
+#           ls ${{ github.workspace }}
+#           tree -L 2 ${{ github.workspace }}
+#       - name: Looking environment variables...
+#         run: printenv
 
         
