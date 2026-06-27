@@ -95,7 +95,7 @@ resource "aws_vpc_endpoint_route_table_association" "dynamodb_private" {
 resource "aws_default_security_group" "default" {
   vpc_id = aws_vpc.main.id
 
-  # No ingress rules (denegar todo por defecto)
+  # No ingress rules (deny all by default)
 
   egress {
     from_port   = 0
@@ -112,4 +112,3 @@ resource "aws_default_security_group" "default" {
     }
   )
 }
-

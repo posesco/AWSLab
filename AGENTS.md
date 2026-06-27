@@ -1,63 +1,63 @@
 # AWS Lab — Project Instructions
 
-Esta es una infraestructura como código (IaC) basada en **Terraform** diseñada para gestionar recursos de AWS de forma modular y multi-entorno.
+This is a **Terraform**-based Infrastructure as Code (IaC) project designed to manage AWS resources in a modular, multi-environment structure.
 
-## Arquitectura y Estructura
+## Architecture and Structure
 
-El proyecto se divide en capas de despliegue:
+The project is split into deployment layers:
 
-1.  **Foundation (Cimientos):** Recursos base requeridos por todo lo demás.
-    *   `foundation/tfstate`: Bucket S3 y DynamoDB para el backend remoto.
-    *   `foundation/networking`: VPC, subnets, gateways y endpoints.
-    *   `foundation/iam`: Usuarios, grupos, roles (incluyendo OIDC para GitHub Actions). Access keys almacenadas en SSM Parameter Store.
-    *   `foundation/billing`: Presupuestos y alertas de costos.
-    *   `foundation/secrets`: Recursos de AWS Secrets Manager.
-2.  **Modules:** Recursos reutilizables.
-    *   `modules/common-tags`: Genera los tags estándar obligatorios.
-    *   `modules/ssm`: Helper para escribir parámetros en SSM Parameter Store.
-3.  **Projects:** Aplicaciones o servicios específicos que consumen la infraestructura base.
-    *   `projects/ec2_hermes_workspace`: Workspace EC2 ARM64 (Graviton) con Docker y cloudflared.
-    *   `projects/ec2_n8n`: Instancia EC2 para automatización con n8n.
-    *   `projects/rds_db`: Capa de base de datos RDS.
+1.  **Foundation:** Base resources required by everything else.
+    *   `foundation/tfstate`: S3 bucket and DynamoDB table for the remote backend.
+    *   `foundation/networking`: VPC, subnets, gateways, and endpoints.
+    *   `foundation/iam`: Users, groups, and roles, including OIDC for GitHub Actions. Access keys are stored in SSM Parameter Store.
+    *   `foundation/billing`: Budgets and cost alerts.
+    *   `foundation/secrets`: AWS Secrets Manager resources.
+2.  **Modules:** Reusable resources.
+    *   `modules/common-tags`: Generates the required standard tags.
+    *   `modules/ssm`: Helper for writing parameters to SSM Parameter Store.
+3.  **Projects:** Specific applications or services that consume the foundation infrastructure.
+    *   `projects/ec2_hermes_workspace`: EC2 ARM64 (Graviton) workspace with Docker and cloudflared.
+    *   `projects/ec2_n8n`: EC2 instance for n8n automation.
+    *   `projects/rds_db`: RDS database layer.
 
-## Comandos y Flujo de Trabajo
+## Commands and Workflow
 
-### Gestión de Entornos (Terraform Workspaces)
-El proyecto utiliza una distinción entre módulos **GLOBALES** y **POR-ENTORNO**:
+### Environment Management (Terraform Workspaces)
+The project distinguishes between **GLOBAL** and **PER-ENVIRONMENT** modules:
 
-*   **Módulos GLOBALES** (`tfstate`, `iam`): Se despliegan una vez por cuenta.
+*   **GLOBAL modules** (`tfstate`, `iam`): Deployed once per account.
     ```bash
     cd foundation/iam
     terraform init
     terraform plan
     terraform apply
     ```
-*   **Módulos POR-ENTORNO** (`networking`, `billing`, `projects/*`): Utilizan workspaces (`dev`, `staging`, `prod`).
+*   **PER-ENVIRONMENT modules** (`networking`, `billing`, `projects/*`): Use workspaces (`dev`, `staging`, `prod`).
     ```bash
     cd foundation/networking
-    terraform workspace select dev # o staging/prod
+    terraform workspace select dev # or staging/prod
     terraform plan
     ```
 
-### Scripts de Utilidad
-*   `./scripts/new-project.sh <nombre>`: Crea un nuevo proyecto basado en la plantilla `projects/_template`.
-*   `./scripts/cost-report.sh`: Genera reportes de costos de AWS.
-*   `./scripts/tf-docs.sh`: Actualiza la documentación de los módulos automáticamente. Preserva el contenido manual (ej. sección `## Features`) que esté antes de `## Requirements` en el README existente.
+### Utility Scripts
+*   `./scripts/new-project.sh <name>`: Creates a new project from the `projects/_template` template.
+*   `./scripts/cost-report.sh`: Generates AWS cost reports.
+*   `./scripts/tf-docs.sh`: Updates module documentation automatically. Preserves manual content, such as a `## Features` section, that appears before `## Requirements` in the existing README.
 
-## Convenciones de Desarrollo
+## Development Conventions
 
-*   **Versiones mínimas:** Terraform `>= 1.15.0`, AWS Provider `~> 6.0`.
-*   **Estrategia de Git:** Trunk-Based Development. Ramas cortas (`feature/*`, `fix/*`) que se integran a `master`.
-*   **Etiquetado (Tagging):** Todos los recursos deben incluir el módulo `common-tags`. Tags mandatorios: `ManagedBy`, `Owner`, `Environment`, `Project`.
-*   **Backend:** Siempre usar backend remoto configurado en `foundation/tfstate`.
-*   **Seguridad:**
-    *   Usar roles de IAM y OIDC para CI/CD (GitHub Actions).
-    *   No hardcodear credenciales; usar variables de entorno o AWS CLI configurado.
+*   **Minimum versions:** Terraform `>= 1.15.0`, AWS Provider `~> 6.0`.
+*   **Git strategy:** Trunk-Based Development. Use short-lived branches (`feature/*`, `fix/*`) that merge into `master`.
+*   **Tagging:** All resources must include the `common-tags` module. Mandatory tags: `ManagedBy`, `Owner`, `Environment`, `Project`.
+*   **Backend:** Always use the remote backend configured in `foundation/tfstate`.
+*   **Security:**
+    *   Use IAM roles and OIDC for CI/CD (GitHub Actions).
+    *   Do not hardcode credentials; use environment variables or a configured AWS CLI profile.
 
 ## CI/CD (GitHub Actions)
-Actualmente `.github/workflows/` contiene un workflow exploratorio comentado para probar GitHub Actions y AWS OIDC. No asumir que existe una pipeline activa de Terraform para plan/apply automático hasta que se agregue un workflow productivo.
+Currently, `.github/workflows/` contains a commented exploratory workflow for testing GitHub Actions and AWS OIDC. Do not assume an active Terraform pipeline exists for automatic plan/apply until a production workflow is added.
 
-La estrategia esperada está documentada en `docs/git-strategy.md`: cambios contra `master`, planes en PR, apply automático a `dev` al merge y promoción manual a `staging`/`prod` mediante `workflow_dispatch`.
+The expected strategy is documented in `docs/git-strategy.md`: changes target `master`, plans run on PRs, merges apply automatically to `dev`, and promotion to `staging`/`prod` is manual via `workflow_dispatch`.
 
 ---
-*Nota: Este archivo contiene instrucciones para agentes de IA que trabajen en este repositorio. Para documentación orientada a usuarios, consultar el `README.md`.*
+*Note: This file contains instructions for AI agents working in this repository. For user-facing documentation, see `README.md`.*
