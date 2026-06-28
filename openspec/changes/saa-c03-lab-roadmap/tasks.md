@@ -25,9 +25,9 @@ Chain strategy: feature-branch-chain
 |------|------|-----------|-------|
 | 1 | Pass hardening gate | PR 1 | Blocks all new labs; validate foundation and Hermes. |
 | 2 | Add portfolio framework | PR 2 | README template, roadmap, evidence paths, diagrams. |
-| 3 | Add Security lab | PR 3 | `projects/saa_security_iam_secrets`; low-cost first lab. |
-| 4 | Add Resilience lab | PR 4 | `projects/saa_resilience_alb_asg`; paid short-lived lab. |
-| 5 | Add Performance/Cost lab | PR 5 | `projects/saa_performance_s3_cloudfront`; paid cleanup proof. |
+| 3 | Add Security lab | PR 3 | `projects/saa_iam_secrets`; low-cost first lab. |
+| 4 | Add Resilience lab | PR 4 | `projects/saa_alb_asg`; paid short-lived lab. |
+| 5 | Add Performance/Cost lab | PR 5 | `projects/saa_s3_cloudfront`; paid cleanup proof. |
 
 ## Phase 1: Hardening Gate
 
@@ -49,21 +49,30 @@ Chain strategy: feature-branch-chain
 
 ## Phase 2: Documentation and Lifecycle Framework
 
-- [ ] 2.1 Create `projects/_template/README.md` with domain mapping, paid resources, lifecycle, commands, evidence links, and cleanup checklist.
-- [ ] 2.2 Create `docs/saa-c03-roadmap.md` with the lab matrix, coverage status, lifecycle state, and cost posture.
-- [ ] 2.3 Update `README.md` as the portfolio index for active labs, domain coverage, and legacy migration notes.
-- [ ] 2.4 Add `docs/lab-evidence/` and `media/` conventions; use `scripts/tf-docs.sh` as the generated-docs base.
+- [x] 2.1 Create `projects/_template/README.md` with domain mapping, paid resources, lifecycle, commands, evidence links, and cleanup checklist.
+- [x] 2.2 Create `docs/saa-c03-roadmap.md` with the lab matrix, coverage status, lifecycle state, and cost posture.
+- [x] 2.3 Update `README.md` as the portfolio index for active labs, domain coverage, and legacy migration notes.
+- [x] 2.4 Add `docs/lab-evidence/` and `media/` conventions; use `scripts/tf-docs.sh` as the generated-docs base.
+
+### Phase 2 Validation Evidence
+
+- Markdown links and task checkboxes reviewed manually for local relative paths.
+- Planned lab names reviewed against the `scripts/new-project.sh` 20-character limit.
+- `scripts/tf-docs.sh` rerun guidance documented because diagram sections are currently appended, not replaced.
+- Template remote-state explanation corrected for non-default workspace paths with `workspace_key_prefix = "workspaces"`.
+- `git diff --check`: pass.
+- Terraform validation not rerun for Unit 2 because only Markdown documentation changed.
 
 ## Phase 3: Legacy Project Decisions
 
-- [ ] 3.1 Add cleanup/migration notes for `projects/ec2_n8n/`; do not delete unless `saa_event_driven_sqs_lambda` or explicit removal is approved.
-- [ ] 3.2 Add cleanup/migration notes for `projects/rds_db/`; do not delete unless `saa_database_patterns` or explicit removal is approved.
+- [ ] 3.1 Add cleanup/migration notes for `projects/ec2_n8n/`; do not delete unless `saa_event_sqs_lambda` or explicit removal is approved.
+- [ ] 3.2 Add cleanup/migration notes for `projects/rds_db/`; do not delete unless `saa_db_patterns` or explicit removal is approved.
 
 ## Phase 4: First SAA-C03 Labs
 
-- [ ] 4.1 Create `projects/saa_security_iam_secrets/` with required Terraform files, `common_tags`, remote state key, README, diagram, and cleanup checks.
-- [ ] 4.2 Create `projects/saa_resilience_alb_asg/` with ALB/ASG short-lived lifecycle, health checks, README, diagram, and destroy evidence commands.
-- [ ] 4.3 Create `projects/saa_performance_s3_cloudfront/` with S3/CloudFront/OAC scope, README, diagram, paid-resource warning, and deletion checks.
+- [ ] 4.1 Create `projects/saa_iam_secrets/` with required Terraform files, `common_tags`, remote state key, README, diagram, and cleanup checks.
+- [ ] 4.2 Create `projects/saa_alb_asg/` with ALB/ASG short-lived lifecycle, health checks, README, diagram, and destroy evidence commands.
+- [ ] 4.3 Create `projects/saa_s3_cloudfront/` with S3/CloudFront/OAC scope, README, diagram, paid-resource warning, and deletion checks.
 
 ## Phase 5: Validation and Cost Cleanup
 

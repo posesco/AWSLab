@@ -8,7 +8,7 @@ Use this Terraform repo as the SAA-C03 lab platform. Preserve `foundation -> mod
 
 1. **Hardening gate** — block new labs until SSH exposure, tfvars secrets, IAM/S3 scope, lockfile policy, Terraform validation, and stale docs are fixed or approved as remediation tasks. Hermes stays.
 2. **Portfolio framework** — lab README template, diagrams, root portfolio index, cleanup/cost evidence paths.
-3. **First recommended disposable sequence** — after hardening: `saa_security_iam_secrets` -> `saa_resilience_alb_asg` -> `saa_performance_s3_cloudfront`.
+3. **First recommended disposable sequence** — after hardening: `saa_iam_secrets` -> `saa_alb_asg` -> `saa_s3_cloudfront`.
 4. **Tracking** — maintain domain coverage, lifecycle, cleanup proof, and cost posture in `docs/saa-c03-roadmap.md`.
 
 ## Architecture Decisions
@@ -16,7 +16,7 @@ Use this Terraform repo as the SAA-C03 lab platform. Preserve `foundation -> mod
 | Decision | Choice | Rationale |
 |---|---|---|
 | Repo | Optimize in-place | Existing VPC, IAM/OIDC, billing, SSM, Secrets Manager, and template are useful learning substrate. |
-| Lab unit | One `projects/<snake_case_lab>/` per lab | Keeps state, plans, cleanup, and PR review bounded. |
+| Lab unit | One `projects/<snake_case_lab>/` per lab, capped at 20 characters | Keeps state, plans, cleanup, and PR review bounded while staying executable by `scripts/new-project.sh`. |
 | Egress | Prefer endpoints/no-NAT; add NAT only when taught | Current S3/DynamoDB endpoints keep baseline cost low. |
 | Legacy | Preserve Hermes; gate n8n/RDS removal | Specs require explicit replacement/removal and cleanup notes. |
 | Docs | Curated README plus generated Terraform docs | Portfolio evidence needs decisions, diagrams, and lifecycle proof. |
@@ -25,12 +25,12 @@ Use this Terraform repo as the SAA-C03 lab platform. Preserve `foundation -> mod
 
 | Folder/name | Domain(s) | Outcome | Services | Cost/lifecycle | Existing project relationship | Cleanup evidence |
 |---|---|---|---|---|---|---|
-| `projects/saa_security_iam_secrets` | Security 30% | Least privilege, secret retrieval, no public SSH | IAM, SSM, Secrets Manager, EC2 access | Low-cost; preserved hardening plus disposable checks | Preserves/hardens Hermes; independent of n8n/RDS | Destroy if resources exist; AWS CLI checks for SGs, IAM, SSM/Secrets, no public SSH |
-| `projects/saa_resilience_alb_asg` | Resilience 26%, Performance 24% | Multi-AZ stateless workload, health checks, scaling | ALB, ASG, EC2, CloudWatch, VPC | Paid; short-lived/disposable | Independent; may replace n8n only by explicit decision | ALB, target group, ASG, launch template, EC2, SG absence |
-| `projects/saa_performance_s3_cloudfront` | Performance 24%, Cost 20%, Security 30% | Static acceleration, cache behavior, origin access | S3, CloudFront, IAM/OAC, optional ACM | Low but paid; short-lived unless approved preserved | Independent | Bucket empty/deleted, distribution disabled/deleted, OAC/IAM removed, cost note |
-| `projects/saa_event_driven_sqs_lambda` | Resilience 26%, Performance 24%, Cost 20% | Decoupling, retries, DLQ, serverless scaling | SQS, Lambda, CloudWatch Logs, IAM | Free-tier friendly; short-lived/disposable | Independent; possible n8n replacement pattern if approved | Queue, DLQ, Lambda, log group, IAM role removed or retained-log justification |
-| `projects/saa_cost_vpc_endpoints` | Cost 20%, Security 30%, Performance 24% | Endpoint versus NAT egress tradeoffs | VPC endpoints, route tables, S3/DynamoDB, optional NAT | Endpoint/NAT paid; time-boxed disposable | Independent; reuses networking | Endpoint/route removal, NAT absence if used, before/after cost note |
-| `projects/saa_database_patterns` | Resilience 26%, Security 30%, Cost 20% | Private DB, backups, Multi-AZ/read-replica tradeoffs | RDS, Secrets Manager, subnet groups, KMS | Paid; short-lived only | Replaces/removes `rds_db` only with migration/cleanup note | RDS delete/snapshot evidence, subnet/parameter/SG checks, retained snapshot justification |
+| `projects/saa_iam_secrets` | Security 30% | Least privilege, secret retrieval, no public SSH | IAM, SSM, Secrets Manager, EC2 access | Low-cost; preserved hardening plus disposable checks | Preserves/hardens Hermes; independent of n8n/RDS | Destroy if resources exist; AWS CLI checks for SGs, IAM, SSM/Secrets, no public SSH |
+| `projects/saa_alb_asg` | Resilience 26%, Performance 24% | Multi-AZ stateless workload, health checks, scaling | ALB, ASG, EC2, CloudWatch, VPC | Paid; short-lived/disposable | Independent; may replace n8n only by explicit decision | ALB, target group, ASG, launch template, EC2, SG absence |
+| `projects/saa_s3_cloudfront` | Performance 24%, Cost 20%, Security 30% | Static acceleration, cache behavior, origin access | S3, CloudFront, IAM/OAC, optional ACM | Low but paid; short-lived unless approved preserved | Independent | Bucket empty/deleted, distribution disabled/deleted, OAC/IAM removed, cost note |
+| `projects/saa_event_sqs_lambda` | Resilience 26%, Performance 24%, Cost 20% | Decoupling, retries, DLQ, serverless scaling | SQS, Lambda, CloudWatch Logs, IAM | Free-tier friendly; short-lived/disposable | Independent; possible n8n replacement pattern if approved | Queue, DLQ, Lambda, log group, IAM role removed or retained-log justification |
+| `projects/saa_vpc_endpoints` | Cost 20%, Security 30%, Performance 24% | Endpoint versus NAT egress tradeoffs | VPC endpoints, route tables, S3/DynamoDB, optional NAT | Endpoint/NAT paid; time-boxed disposable | Independent; reuses networking | Endpoint/route removal, NAT absence if used, before/after cost note |
+| `projects/saa_db_patterns` | Resilience 26%, Security 30%, Cost 20% | Private DB, backups, Multi-AZ/read-replica tradeoffs | RDS, Secrets Manager, subnet groups, KMS | Paid; short-lived only | Replaces/removes `rds_db` only with migration/cleanup note | RDS delete/snapshot evidence, subnet/parameter/SG checks, retained snapshot justification |
 
 ## Data Flow
 
