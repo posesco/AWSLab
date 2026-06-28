@@ -12,7 +12,8 @@ apt-get install -y \
   curl \
   gnupg \
   lsb-release \
-  rsync
+  rsync \
+  awscli
 
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
@@ -42,36 +43,25 @@ usermod -aG docker ubuntu
 systemctl enable docker
 systemctl start docker
 
-cloudflared service install ${cloudflare_tunnel_token}
+export AWS_DEFAULT_REGION=${aws_region}
+
+read_ssm_secure_parameter() {
+  local parameter_name="$1"
+  aws ssm get-parameter \
+    --name "$parameter_name" \
+    --with-decryption \
+    --query 'Parameter.Value' \
+    --output text
+}
+
+set +x
+CLOUDFLARE_TUNNEL_TOKEN="$(read_ssm_secure_parameter "${cloudflare_tunnel_token_parameter_name}")"
+
+cloudflared service install "$CLOUDFLARE_TUNNEL_TOKEN"
+unset CLOUDFLARE_TUNNEL_TOKEN
 
 # Bedrock Configuration
 # Note: Ensure model access is enabled in the AWS Console for ${aws_region}
 # Model usage enabled via IAM role for Claude (Sonnet) and Minimax.
-export AWS_DEFAULT_REGION=${aws_region}
-
-# Install Hermes Workspace
-# curl -fsSL https://raw.githubusercontent.com/outsourc-e/hermes-workspace/main/install.sh | bash
-# source ~/.bashrc
-# hermes setup 
-# mkdir -p ~/.hermes && touch ~/.hermes/.env
-# sed -i '/^HERMES_PASSWORD=/d ; /^AWS_REGION=/d' ~/.hermes/.env
-# printf "HERMES_PASSWORD=${hermes_ui_pass}\nAWS_REGION=${aws_region}\n" >> ~/.hermes/.env
-# hermes gateway run
-# hermes dashboard &
-# hermes doctor --fix
-# cd ~/hermes-workspace && pnpm approve-builds
-# cd ~/hermes-workspace && pnpm install
-# cd ~/hermes-workspace && pnpm start:all &
-
-
-# Fix permissions for user
-# sudo chown -R $USER:$USER ~/.hermes ~/workspace
-# mkdir -p ~/.hermes
-# chmod -R 777 ~/.hermes
-
-# https://www.youtube.com/watch?v=fUem4KS572c
 
 echo "=== End user_data: $(date) ==="
-
-
-

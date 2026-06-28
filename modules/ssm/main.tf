@@ -5,6 +5,6 @@ resource "aws_ssm_parameter" "this" {
   description = each.value.description
   type        = each.value.type
   value       = each.value.value
- 
+
   tags = var.common_tags
 }

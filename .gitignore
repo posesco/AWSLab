@@ -1,6 +1,3 @@
-# Created by https://www.toptal.com/developers/gitignore/api/terraform,linux,visualstudiocode
-# Edit at https://www.toptal.com/developers/gitignore?templates=terraform,linux,visualstudiocode
-
 ### Linux ###
 *~
 
@@ -46,7 +43,11 @@ override.tf.json
 # !example_override.tf
 
 # Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
+*tfplan*
+
+# Commit Terraform provider lock files for reproducible validation and plans.
+!.terraform.lock.hcl
+!**/.terraform.lock.hcl
 
 # Ignore CLI configuration files
 .terraformrc
@@ -74,37 +75,17 @@ terraform.rc
 # Local private key (never commit)
 id_rsa
 id_rsa.pub
-# Python artifacts
-__pycache__/
-lambda/lambda.zip
-lambda/__pycache__/
+
+# Environment files
 .env
-# OS
-.DS_Store
-*.swp
-
-
--------------.
-# Terraform
-.terraform/
-*.tfstate
-*.tfstate.*
-crash.log
-override.tf
-override.tf.json
-*_override.tf
-.terraform.lock.hcl
-terraform.tfvars
-terraform.tfvars.json
 
 # Keys & secrets
 *.pem
 *.key
-id_rsa
-id_rsa.pub
 *.env
 .env.local
-*.pem
+*.auto.tfvars
+*.auto.tfvars.json
 
 # Python / Lambda artifacts
 __pycache__/

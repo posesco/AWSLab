@@ -48,6 +48,11 @@ output "ec2_projects_instance_profile_arn" {
   value       = aws_iam_instance_profile.ec2_projects.arn
 }
 
+output "ec2_projects_ssm_parameter_paths" {
+  description = "SSM parameter path prefixes the shared EC2 projects role may read. Keep these narrow because every project using the shared instance profile receives this access."
+  value       = var.ec2_projects_ssm_parameter_paths
+}
+
 output "github_oidc_provider_arn" {
   description = "ARN of GitHub OIDC identity provider"
   value       = aws_iam_openid_connect_provider.github.arn

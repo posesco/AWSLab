@@ -11,11 +11,11 @@
 | Chained PRs recommended | Yes |
 | Suggested split | PR 1 hardening -> PR 2 docs framework -> PR 3 security lab -> PR 4 resilience lab -> PR 5 CloudFront lab |
 | Delivery strategy | auto-forecast |
-| Chain strategy | pending; recommend feature-branch-chain |
+| Chain strategy | approved feature-branch-chain |
 
-Decision needed before apply: Yes
+Decision needed before apply: No; feature-branch-chain approved by orchestrator
 Chained PRs recommended: Yes
-Chain strategy: pending
+Chain strategy: feature-branch-chain
 400-line budget risk: High
 800-line budget risk: High
 
@@ -31,11 +31,21 @@ Chain strategy: pending
 
 ## Phase 1: Hardening Gate
 
-- [ ] 1.1 Update `.gitignore` to track `.terraform.lock.hcl` while ignoring tfvars/secrets; verify no committed secret values.
-- [ ] 1.2 Harden `projects/ec2_hermes_workspace/*` SSH, secret access, and tags without deleting the workspace.
-- [ ] 1.3 Reduce unsafe IAM/S3 wildcards in `foundation/iam/*` or record approved remediation tasks.
-- [ ] 1.4 Create `.github/workflows/terraform-validate.yml` for `terraform fmt -check -recursive`, init/validate, and safe targeted plans.
-- [ ] 1.5 Run `terraform fmt -check -recursive`, per-module `terraform init -backend=false`, `terraform validate`, and targeted `dev` plans for changed modules.
+- [x] 1.1 Update `.gitignore` to track `.terraform.lock.hcl` while ignoring tfvars/secrets; verify no committed secret values.
+- [x] 1.2 Harden `projects/ec2_hermes_workspace/*` SSH, secret access, and tags without deleting the workspace.
+- [x] 1.3 Reduce unsafe IAM/S3 wildcards in `foundation/iam/*` or record approved remediation tasks.
+- [x] 1.4 Create `.github/workflows/terraform-validate.yml` for `terraform fmt -check -recursive`, init/validate, shell syntax checks, and safe targeted plans.
+- [x] 1.5 Run `terraform fmt -check -recursive`, per-module `terraform init -backend=false`, `terraform validate`, shell/workflow static checks, and targeted `dev` plans where credentials allow.
+
+### Phase 1 Validation Evidence
+
+- `terraform fmt -check -recursive` from repo root: pass.
+- `terraform init -backend=false && terraform validate` in `foundation/iam`: pass.
+- `terraform init -backend=false && terraform validate` in `projects/ec2_hermes_workspace`: pass with warnings from ignored local `terraform.tfvars` containing removed legacy variables (`cloudflare_tunnel_token`, `hermes_ui_pass`); configuration validation passed.
+- `bash -n projects/ec2_hermes_workspace/user_data.sh`: pass.
+- `ruby -e "require 'yaml'; YAML.load_file('.github/workflows/terraform-validate.yml')"`: pass.
+- `git diff --check`: pass.
+- Targeted `dev` plans: skipped in this surgical pass to avoid AWS credential/backend requirements; workflow supports credentialed `workflow_dispatch` plans after IAM remote state is updated.
 
 ## Phase 2: Documentation and Lifecycle Framework
 

@@ -5,8 +5,11 @@ module "common_tags" {
 }
 
 locals {
-  env         = terraform.workspace
-  common_tags = module.common_tags.tags
+  env                                              = terraform.workspace
+  common_tags                                      = module.common_tags.tags
+  cloudflare_tunnel_token_parameter_name           = var.cloudflare_tunnel_token_parameter_name[local.env]
+  cloudflare_tunnel_token_parameter_path_prefix    = regex("^(.+)/[^/]+$", local.cloudflare_tunnel_token_parameter_name)[0]
+  ec2_projects_allowed_ssm_parameter_path_prefixes = try(tolist(data.terraform_remote_state.iam.outputs.ec2_projects_ssm_parameter_paths), [])
 }
 
 data "terraform_remote_state" "networking" {
@@ -40,12 +43,4 @@ data "aws_ami" "os" {
     name   = "virtualization-type"
     values = ["hvm"]
   }
-}
-
-data "aws_ssm_parameter" "cloudflare_tunnel_token" {
-  name = "/hermes/${local.env}/cloudflare_token"
-}
-
-data "aws_ssm_parameter" "hermes_ui_pass" {
-  name = "/hermes/${local.env}/ui_password"
 }

@@ -1,4 +1,6 @@
 resource "aws_iam_role_policy" "ec2_s3_access" {
+  count = length(var.ec2_projects_s3_bucket_names) > 0 ? 1 : 0
+
   name = "ec2-s3-access"
   role = aws_iam_role.ec2_projects.id
 
@@ -14,10 +16,48 @@ resource "aws_iam_role_policy" "ec2_s3_access" {
           "s3:DeleteObject",
           "s3:ListBucket"
         ]
-        # TODO: Restrict to specific buckets as needed
         Resource = [
-          "arn:aws:s3:::*",
-          "arn:aws:s3:::*/*"
+          for bucket_name in var.ec2_projects_s3_bucket_names :
+          "arn:aws:s3:::${bucket_name}"
+        ]
+      },
+      {
+        Sid    = "S3ObjectAccess"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = [
+          for bucket_name in var.ec2_projects_s3_bucket_names :
+          "arn:aws:s3:::${bucket_name}/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "ec2_ssm_parameter_access" {
+  count = length(var.ec2_projects_ssm_parameter_paths) > 0 ? 1 : 0
+
+  name = "ec2-ssm-parameter-access"
+  role = aws_iam_role.ec2_projects.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "ReadProjectParameters"
+        Effect = "Allow"
+        Action = [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath"
+        ]
+        Resource = [
+          for path_prefix in var.ec2_projects_ssm_parameter_paths :
+          "arn:aws:ssm:${var.aws_region}:${data.aws_caller_identity.current.account_id}:parameter${trimsuffix(path_prefix, "/")}/*"
         ]
       }
     ]
@@ -42,7 +82,7 @@ resource "aws_iam_role_policy" "ec2_dynamodb_access" {
           "dynamodb:Query",
           "dynamodb:Scan"
         ]
-        Resource = "arn:aws:dynamodb:${var.aws_region}:*:table/*"
+        Resource = "arn:aws:dynamodb:${var.aws_region}:${data.aws_caller_identity.current.account_id}:table/*"
       }
     ]
   })
@@ -67,7 +107,18 @@ resource "aws_iam_role_policy" "github_actions_iam_limited" {
           "iam:AttachRolePolicy",
           "iam:DetachRolePolicy",
           "iam:PutRolePolicy",
-          "iam:DeleteRolePolicy",
+          "iam:DeleteRolePolicy"
+        ]
+        Resource = [
+          aws_iam_role.cost_explorer_reader.arn,
+          aws_iam_role.ec2_projects.arn,
+          aws_iam_role.github_actions.arn
+        ]
+      },
+      {
+        Sid    = "IAMInstanceProfileManagement"
+        Effect = "Allow"
+        Action = [
           "iam:CreateInstanceProfile",
           "iam:DeleteInstanceProfile",
           "iam:AddRoleToInstanceProfile",
@@ -76,23 +127,11 @@ resource "aws_iam_role_policy" "github_actions_iam_limited" {
           "iam:UntagInstanceProfile"
         ]
         Resource = [
-          # TODO: Scope down resources as needed
-          "arn:aws:iam::*:role/*",
-          "arn:aws:iam::*:instance-profile/*"
+          aws_iam_role.cost_explorer_reader.arn,
+          aws_iam_role.ec2_projects.arn,
+          aws_iam_role.github_actions.arn,
+          aws_iam_instance_profile.ec2_projects.arn
         ]
-      },
-      {
-        Sid    = "IAMPolicyManagement"
-        Effect = "Allow"
-        Action = [
-          "iam:CreatePolicy",
-          "iam:DeletePolicy",
-          "iam:CreatePolicyVersion",
-          "iam:DeletePolicyVersion",
-          "iam:TagPolicy",
-          "iam:UntagPolicy"
-        ]
-        Resource = "arn:aws:iam::*:policy/*"
       },
       {
         Sid    = "OIDCProviderManagement"
@@ -106,7 +145,7 @@ resource "aws_iam_role_policy" "github_actions_iam_limited" {
           "iam:TagOpenIDConnectProvider",
           "iam:UntagOpenIDConnectProvider"
         ]
-        Resource = "arn:aws:iam::*:oidc-provider/token.actions.githubusercontent.com"
+        Resource = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:oidc-provider/token.actions.githubusercontent.com"
       }
     ]
   })

@@ -104,6 +104,26 @@ variable "tfstate_bucket_name" {
   description = "Name of the S3 bucket storing Terraform state (for OIDC role permissions)"
 }
 
+variable "ec2_projects_s3_bucket_names" {
+  type        = list(string)
+  description = "S3 bucket names that EC2 project instances may access. Empty disables S3 object access by default."
+  default     = []
+}
+
+variable "ec2_projects_ssm_parameter_paths" {
+  type        = list(string)
+  description = "SSM parameter path prefixes EC2 project instances may read, without a trailing wildcard. Empty disables SSM parameter access by default; configure narrow paths such as /hermes/dev for Hermes when needed."
+  default     = []
+
+  validation {
+    condition = alltrue([
+      for path_prefix in var.ec2_projects_ssm_parameter_paths :
+      startswith(path_prefix, "/") && !strcontains(path_prefix, "*") && trimsuffix(path_prefix, "/") == path_prefix
+    ])
+    error_message = "SSM parameter path prefixes must start with '/', must not include wildcards, and must not end with '/'."
+  }
+}
+
 # TODO: Implement Secrets Manager storage for access keys
 variable "store_keys_in_secrets_manager" {
   type        = bool

@@ -1,0 +1,141 @@
+name: Terraform Validate
+
+on:
+  pull_request:
+    paths:
+      - "**/*.tf"
+      - "**/*.sh"
+      - "**/*.tfvars.example"
+      - "**/.terraform.lock.hcl"
+      - ".github/workflows/terraform-validate.yml"
+  workflow_dispatch:
+    inputs:
+      plan_module:
+        description: "Optional module path to plan"
+        required: false
+        default: none
+        type: choice
+        options:
+          - none
+          - foundation/billing
+          - foundation/iam
+          - foundation/networking
+          - foundation/secrets
+          - foundation/tfstate
+          - projects/ec2_hermes_workspace
+          - projects/ec2_n8n
+          - projects/rds_db
+      workspace:
+        description: "Terraform workspace for targeted plan"
+        required: false
+        default: dev
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+permissions:
+  contents: read
+
+env:
+  TF_IN_AUTOMATION: true
+  TF_INPUT: false
+
+jobs:
+  fmt:
+    name: terraform fmt
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.0
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+
+  validate:
+    name: terraform validate
+    runs-on: ubuntu-latest
+    needs: fmt
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - foundation/billing
+          - foundation/iam
+          - foundation/networking
+          - foundation/secrets
+          - foundation/tfstate
+          - modules/common-tags
+          - modules/ssm
+          - projects/ec2_hermes_workspace
+          - projects/ec2_n8n
+          - projects/rds_db
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.0
+
+      - name: Init without backend
+        working-directory: ${{ matrix.module }}
+        run: terraform init -backend=false
+
+      - name: Validate
+        working-directory: ${{ matrix.module }}
+        run: terraform validate
+
+  shell-syntax:
+    name: shell syntax
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check Hermes bootstrap syntax
+        run: bash -n projects/ec2_hermes_workspace/user_data.sh
+
+  targeted-plan:
+    name: targeted Terraform plan
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'workflow_dispatch' && inputs.plan_module != 'none'
+    environment: ${{ inputs.workspace }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.15.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_TERRAFORM_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'eu-west-1' }}
+
+      - name: Init
+        working-directory: ${{ inputs.plan_module }}
+        run: terraform init
+
+      - name: Select workspace for environment-scoped modules
+        if: ${{ inputs.plan_module != 'foundation/iam' && inputs.plan_module != 'foundation/tfstate' }}
+        working-directory: ${{ inputs.plan_module }}
+        run: terraform workspace select "${{ inputs.workspace }}"
+
+      - name: Plan
+        working-directory: ${{ inputs.plan_module }}
+        run: terraform plan -input=false -out=tfplan

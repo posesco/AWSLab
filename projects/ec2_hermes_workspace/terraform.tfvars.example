@@ -1,7 +1,11 @@
 aws_region            = "eu-west-1"
-project               = "n8n"
-allowed_ssh_cidr_ipv4 = "0.0.0.0/0"
-allowed_ssh_cidr_ipv6 = "::/0"
+project               = "hermes"
+enable_ssh_access     = false
+
+# Prefer SSM Session Manager or Cloudflare Tunnel. If direct SSH is required,
+# set enable_ssh_access = true and use a narrow trusted source CIDR.
+allowed_ssh_cidr_ipv4 = "203.0.113.10/32"
+allowed_ssh_cidr_ipv6 = "2001:db8::/128"
 
 instance_type = {
   dev     = "t4g.small"
@@ -21,8 +25,8 @@ lab_volume_size = {
   prod    = 50
 }
 
-cloudflare_tunnel_token = {
-  dev     = "your_dev_token_here"
-  staging = "your_staging_token_here"
-  prod    = "your_prod_token_here"
+cloudflare_tunnel_token_parameter_name = {
+  dev     = "/hermes/dev/cloudflare_token"
+  staging = "/hermes/staging/cloudflare_token"
+  prod    = "/hermes/prod/cloudflare_token"
 }

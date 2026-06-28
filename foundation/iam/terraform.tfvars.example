@@ -1,0 +1,10 @@
+aws_region         = "eu-west-1"
+github_repository  = "owner/repo"
+tfstate_bucket_name = "terraform-state-bucket-unique-posesco"
+
+# Grant only the SSM parameter path prefixes needed by EC2 projects that share
+# ec2-projects-profile. Add one environment path at a time; do not grant
+# /hermes/prod unless every attached EC2 project may read the prod tunnel token.
+ec2_projects_ssm_parameter_paths = [
+  "/hermes/dev"
+]
